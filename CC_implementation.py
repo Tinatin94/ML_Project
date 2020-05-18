@@ -62,17 +62,14 @@ y_val = np.array(encoded_labels_df_val)
 
 base_lr = LogisticRegression()
 
-chains = [ClassifierChain(base_lr, order='random', random_state=i)
-          for i in range(5)]
 
-i = 1
-for chain in chains:
-    print(i)
-    chain.fit(X_train, Y_train)
-    filename = i+".pickle"
-    pickle.dump(chain, open(filename, 'wb'))
-    i += 1
+    
+int_rand = np.random.randint(1000)
+chains = ClassifierChain(base_lr, order='random', random_state=int_rand)
 
+chain.fit(X_train, Y_train)
+filename = int_ran+".pickle"
+pickle.dump(chain, open(filename, 'wb'))
 
 
 #loaded_model = pickle.load(open(filename, 'rb'))

@@ -7,13 +7,19 @@ from sklearn.metrics import label_ranking_average_precision_score
 from sklearn.svm import SVC
 from sklearn.preprocessing import MultiLabelBinarizer
 import pickle
+import datetime
 
+train_path = "/scratch/ab8690/ml/data/train.csv"
+val_path = "/scratch/ab8690/ml/data/dev.csv"
+save_path = "/scratch/ab8690/ml/"
+MAX_ITER = 500
 
-train = pd.read_csv("data/train.csv", index_col=0)
-val = pd.read_csv("data/dev.csv", index_col=0)
+train = pd.read_csv(train_path, index_col=0)
+val = pd.read_csv(val_path, index_col=0)
 
 val = val[~val.labels.str.contains(":")]
 train = train[~train.labels.str.contains(":")]
+
 labels_list = [label.split(" ") for label in train['labels']]
 labels_list = [label[0].split(",") for label in labels_list]
 labels_list_val = [label.split(" ") for label in val['labels']]
@@ -54,26 +60,35 @@ features_df_val = pd.DataFrame(col_dicts_val)
 
 features_df = features_df.fillna(0)
 features_df_val = features_df_val.fillna(0)
-
+print('done cleaning')
 X_train = np.array(features_df)
 Y_train = np.array(encoded_labels_df)
 x_val = np.array(features_df_val)
 y_val = np.array(encoded_labels_df_val)
 
-base_lr = LogisticRegression()
+###### MODEL #######
 
-chains = [ClassifierChain(base_lr, order='random', random_state=i)
-          for i in range(5)]
-
-
-for chain in chains:
-    chain.fit(X_train, Y_train)
-    filename = i+".pickle"
-    pickle.dump(chain, open(filename, 'wb'))
+start = datetime.datetime.now()
+print ("Current date and time : ")
+print (start.strftime("%Y-%m-%d %H:%M:%S"))
 
 
+base_lr = LogisticRegression(max_iter = MAX_ITER, n_jobs = -1)
 
-#loaded_model = pickle.load(open(filename, 'rb'))
-    
-Y_pred_chains = np.array([chain.predict_proba(x_val) for chain in
-                          chains])
+int_rand = np.random.randint(1000)
+chain = ClassifierChain(base_lr, order='random', random_state=int_rand)
+
+chain.fit(X_train, Y_train)
+
+filename = f"{MAX_ITER}_{int_rand}.sav"
+file_path = save_path + filename
+
+end = datetime.datetime.now()
+print ("Current date and time : ")
+print (end.strftime("%Y-%m-%d %H:%M:%S"))
+
+
+###### SAVE MODEL PICKLE ######
+
+pickle.dump(chain, open(file_path, 'wb'))
+

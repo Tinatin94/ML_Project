@@ -8,11 +8,9 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import MultiLabelBinarizer
 import pickle
 
-train_path = "/scratch/ab8690/ml/data/train.csv"
-val_path = "/scratch/ab8690/ml/data/dev.csv"
 
-train = pd.read_csv(train_path, index_col=0)
-val = pd.read_csv(val_path, index_col=0)
+train = pd.read_csv("data/train.csv", index_col=0)
+val = pd.read_csv("data/dev.csv", index_col=0)
 
 val = val[~val.labels.str.contains(":")]
 train = train[~train.labels.str.contains(":")]
@@ -67,7 +65,7 @@ base_lr = LogisticRegression()
 
     
 int_rand = np.random.randint(1000)
-chains = ClassifierChain(base_lr, order='random', random_state=int_rand)
+chain = ClassifierChain(base_lr, order='random', random_state=int_rand)
 
 chain.fit(X_train, Y_train)
 filename = int_ran+".pickle"

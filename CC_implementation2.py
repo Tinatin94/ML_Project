@@ -11,6 +11,8 @@ import pickle
 train_path = "/scratch/ab8690/ml/data/train.csv"
 val_path = "/scratch/ab8690/ml/data/dev.csv"
 
+MAX_ITER = 1000
+
 train = pd.read_csv(train_path, index_col=0)
 val = pd.read_csv(val_path, index_col=0)
 
@@ -62,7 +64,7 @@ Y_train = np.array(encoded_labels_df)
 x_val = np.array(features_df_val)
 y_val = np.array(encoded_labels_df_val)
 
-base_lr = LogisticRegression(max_iter=1000, n_jobs=-1, verbose=1)
+base_lr = LogisticRegression(max_iter=MAX_ITER, n_jobs=-1, verbose=1)
 
 
     
@@ -70,7 +72,7 @@ int_rand = np.random.randint(1000)
 chain = ClassifierChain(base_lr, order='random', random_state=int_rand)
 
 chain.fit(X_train, Y_train)
-filename = int_ran+".pickle"
+filename = MAX_ITER + "_" + int_ran+".pickle"
 pickle.dump(chain, open(filename, 'wb'))
 
 

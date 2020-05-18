@@ -12,7 +12,7 @@ import datetime
 train_path = "/scratch/ab8690/ml/data/train.csv"
 val_path = "/scratch/ab8690/ml/data/dev.csv"
 save_path = "/scratch/ab8690/ml/"
-MAX_ITER = 500
+MAX_ITER = 100
 
 train = pd.read_csv(train_path, index_col=0)
 val = pd.read_csv(val_path, index_col=0)
@@ -73,7 +73,7 @@ print ("Current date and time : ")
 print (start.strftime("%Y-%m-%d %H:%M:%S"))
 
 
-base_lr = LogisticRegression(max_iter = MAX_ITER, n_jobs = -1)
+base_lr = LogisticRegression(max_iter = MAX_ITER, verbose=1, solver='liblinear')
 
 int_rand = np.random.randint(1000)
 chain = ClassifierChain(base_lr, order='random', random_state=int_rand)

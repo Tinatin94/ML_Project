@@ -18,7 +18,6 @@ train_path = "/scratch/ab8690/ml/data/train.csv"
 val_path = "/scratch/ab8690/ml/data/dev.csv"
 
 train = pd.read_csv(train_path, index_col=0)
-train = train[:3]
 val = pd.read_csv(val_path, index_col=0)
 
 val = val[~val.labels.str.contains(":")]
@@ -64,6 +63,15 @@ features_df_val = pd.DataFrame(col_dicts_val)
 features_df = features_df.fillna(0)
 features_df_val = features_df_val.fillna(0)
 print('done cleanning')
+
+###### downsample
+#features_df = features_df.iloc[0:5000,:]
+#features_df_val = features_df_val[0:1000,]
+#encoded_labels_df = encoded_labels_df.iloc[0:5000,:]
+
+print("feat shape:", features_df.shape)
+print("labels shape:", encoded_labels_df.shape)
+
 X_train = np.array(features_df)
 Y_train = np.array(encoded_labels_df)
 x_val = np.array(features_df_val)
@@ -73,8 +81,9 @@ y_val = np.array(encoded_labels_df_val)
 # Define model
 linsvm = LinearSVC(loss='hinge',
                        multi_class='ovr',
-                       verbose=True)
-model = OneVsRestClassifier(linsvm)
+                       #verbose=True,
+                       max_iter=1000)
+model = OneVsRestClassifier(linsvm, n_jobs=-1)
 
 start = time.process_time()
 model.fit(X_train,Y_train)
@@ -82,14 +91,18 @@ elapsed_fit = time.process_time() - start
 
 print("Time to fit model (min):",elapsed_fit/60)
 
-#start_predict = time.process_time()
-#y_pred = model.decision_function(X_val)
-#elapsed_predict = time.process_time() - start_predict
+start_predict = time.process_time()
+### change
+y_pred = model.decision_function(x_val)
+elapsed_predict = time.process_time() - start_predict
 
-#print("Time to predict (min):",elapsed_predict/60)
+print("Time to predict (min):",elapsed_predict/60)
 
 # Evaluate
-#y_true = y_val
-#LRAP = label_ranking_average_precision_score(y_true,y_pred)
+### change
+y_true = y_val
+LRAP = label_ranking_average_precision_score(y_true,y_pred)
 
-#print("LRAP:", LRAP)
+print("LRAP:", LRAP)
+
+print(y_pred[0:3])

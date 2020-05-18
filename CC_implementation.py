@@ -6,6 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import label_ranking_average_precision_score
 from sklearn.svm import SVC
 from sklearn.preprocessing import MultiLabelBinarizer
+import pickle
 
 
 train = pd.read_csv("data/train.csv", index_col=0)
@@ -67,7 +68,12 @@ chains = [ClassifierChain(base_lr, order='random', random_state=i)
 
 for chain in chains:
     chain.fit(X_train, Y_train)
+    filename = i+".pickle"
+    pickle.dump(chain, open(filename, 'wb'))
 
+
+
+#loaded_model = pickle.load(open(filename, 'rb'))
     
 Y_pred_chains = np.array([chain.predict_proba(x_val) for chain in
                           chains])

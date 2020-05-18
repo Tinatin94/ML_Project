@@ -71,7 +71,7 @@ linsvm = LinearSVC(loss='hinge',
 model = OneVsRestClassifier(linsvm)
 
 start = time.process_time()
-model.fit(X,y)
+model.fit(X_train,Y_train)
 elapsed_fit = time.process_time() - start
 
 print("Time to fit model (min):",elapsed_fit/60)

@@ -10,8 +10,15 @@ import pickle
 
 train_path = "/scratch/ab8690/ml/data/train.csv"
 val_path = "/scratch/ab8690/ml/data/dev.csv"
+<<<<<<< HEAD
 
 train = pd.read_csv(train_path, index_col=0)
+=======
+save_path = "/scratch/ab8690/ml/"
+
+train = pd.read_csv(train_path, index_col=0)
+train = train[:3]
+>>>>>>> 568ba4936106a02105672d25ff2e23b40baef042
 val = pd.read_csv(val_path, index_col=0)
 
 val = val[~val.labels.str.contains(":")]
@@ -62,7 +69,7 @@ Y_train = np.array(encoded_labels_df)
 x_val = np.array(features_df_val)
 y_val = np.array(encoded_labels_df_val)
 
-base_lr = LogisticRegression()
+base_lr = LogisticRegression(max_iter = 2, n_jobs = -1)
 
 
     
@@ -70,11 +77,15 @@ int_rand = np.random.randint(1000)
 chain = ClassifierChain(base_lr, order='random', random_state=int_rand)
 
 chain.fit(X_train, Y_train)
-filename = int_ran+".pickle"
-pickle.dump(chain, open(filename, 'wb'))
 
+filename = f"{int_rand}.pickle"
+file_path = save_path + filename
 
+<<<<<<< HEAD
 #loaded_model = pickle.load(open(filename, 'rb'))
 print('start predict')  
 Y_pred_chains = np.array([chain.predict_proba(x_val) for chain in
                           chains])
+=======
+pickle.dump(chain, open(file_path, 'wb'))
+>>>>>>> 568ba4936106a02105672d25ff2e23b40baef042

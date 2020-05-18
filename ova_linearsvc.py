@@ -17,31 +17,13 @@ val_path = "/scratch/ab8690/ml/data/dev.csv"
 train = pd.read_csv(train_path, index_col=0)
 val = pd.read_csv(val_path, index_col=0)
 
-# Remove broken label examples
-def remove_broken(dataset):
-    labels_list = [label.split(" ") for label in dataset['labels']]
-    labels_list = [label[0].split(",") for label in labels_list]
+train = train[~train.labels.str.contains(":")]
+val = val[~val.labels.str.contains(":")]
 
-    # drop the broken indices - found them using this - need to ask on Piazza what's wrong with them
-    broken_indices = []
-    for i in range(len(labels_list)):
-        for j in range(len(labels_list[i])):
-            try:
-                int(labels_list[i][j])   
-            except:
-                #print(i, labels_list[i])
-                broken_indices.append(i)
-
-    labels_array = np.array(labels_list)
-    print(len(labels_list))
-    labels_list = np.delete(labels_array, broken_indices).tolist()
-    print(len(labels_list))
-    labels_list = [[int(s) for s in sublist] for sublist in labels_list] 
-    return labels_list, broken_indices
-    
-labels_list, broken_indices = remove_broken(train)
-
-val_labels_list, val_broken_indices = remove_broken(val)
+labels_list = [label.split(" ") for label in train['labels']]
+labels_list = [label[0].split(",") for label in labels_list]
+labels_list_val = [label.split(" ") for label in val['labels']]
+labels_list_val = [label[0].split(",") for label in labels_list_val]
 
 def convert_labels(labels_list):
     mlb = MultiLabelBinarizer(classes = range(3993))
@@ -51,7 +33,7 @@ def convert_labels(labels_list):
 
 encoded_labels_df = convert_labels(labels_list)
 
-val_encoded_labels_df = convert_labels(val_labels_list)
+val_encoded_labels_df = convert_labels(labels_list_val)
 
 # Convert features
 
@@ -65,26 +47,21 @@ def make_dict(entry):
         col_dict[key] = value
     return col_dict
     
-def make_features_df(dataset,broken_indices):
+def make_features_df(dataset):
     df = dataset['features']
 
     features = [item.split(" ") for item in df]
     col_dicts = [make_dict(entry) for entry in features]
     
-    # Turn features column into sparse dataframe
-    # Note: missing values as NaN - should these be zeros?
     features_df = pd.DataFrame(col_dicts)
     features_df.fillna(0)
     
     return features_df
     
-features_df = make_features_df(train,broken_indices)
+features_df = make_features_df(train)
 
-features_df = features_df.drop(broken_indices, axis=0)
+val_features_df = make_features_df(val)
 
-val_features_df = make_features_df(val, val_broken_indices)
-
-val_features_df = val_features_df.drop(val_broken_indices, axis=0)
 
 # Train and evaluate
 
@@ -102,11 +79,15 @@ X_val[np.isnan(X_val)]=0
 
 y_val = np.array(val_encoded_labels_df).astype(float)
 
+
 # Define model
-linsvm = LinearSVC(loss='hinge',
-                       multi_class='ovr',
-                       verbose=True)
-model = OneVsRestClassifier(linsvm, n_jobs=-1)
+svm = SVC(kernel='linear',
+                 probability=True,
+                 verbose=True,
+                 max_iter=1,
+                 decision_function_shape='ovr',
+                 random_state=0)
+model = OneVsRestClassifier(svm)
 
 start = time.process_time()
 model.fit(X,y)
@@ -125,3 +106,4 @@ y_true = y_val
 LRAP = label_ranking_average_precision_score(y_true,y_pred)
 
 print("LRAP:", LRAP)
+

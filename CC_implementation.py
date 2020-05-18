@@ -12,7 +12,7 @@ import datetime
 train_path = "/scratch/ab8690/ml/data/train.csv"
 val_path = "/scratch/ab8690/ml/data/dev.csv"
 save_path = "/scratch/ab8690/ml/"
-MAX_ITER = 100
+MAX_ITER = 50
 
 train = pd.read_csv(train_path, index_col=0)
 val = pd.read_csv(val_path, index_col=0)
@@ -61,10 +61,18 @@ features_df_val = pd.DataFrame(col_dicts_val)
 features_df = features_df.fillna(0)
 features_df_val = features_df_val.fillna(0)
 print('done cleaning')
+
+
+###### DOWNSAMPLE #####
+features_df = features_df.iloc[0:1000,:]
+encoded_labels_df = encoded_labels_df.iloc[0:1000,:]
+encoded_labels_df = encoded_labels_df.loc[:, (encoded_labels_df != 0).any(axis=0)]
+
 X_train = np.array(features_df)
 Y_train = np.array(encoded_labels_df)
 x_val = np.array(features_df_val)
 y_val = np.array(encoded_labels_df_val)
+
 
 ###### MODEL #######
 
@@ -76,7 +84,7 @@ print (start.strftime("%Y-%m-%d %H:%M:%S"))
 base_lr = LogisticRegression(max_iter = MAX_ITER, verbose=1, solver='liblinear')
 
 int_rand = np.random.randint(1000)
-chain = ClassifierChain(base_lr, order='random', random_state=int_rand)
+chain = ClassifierChain(base_lr, random_state=int_rand)
 
 chain.fit(X_train, Y_train)
 

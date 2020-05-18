@@ -79,10 +79,10 @@ y_val = np.array(encoded_labels_df_val)
 
 
 # Define model
-linsvm = LinearSVC(loss='hinge',
-                       multi_class='ovr',
+linsvm = LinearSVC(loss='hinge')
+                       #multi_class='ovr',
                        #verbose=True,
-                       max_iter=1000)
+                       #max_iter=1000)
 model = OneVsRestClassifier(linsvm, n_jobs=-1)
 
 start = time.process_time()

@@ -14,9 +14,6 @@ import time
 train_path = "/scratch/ab8690/ml/data/train.csv"
 val_path = "/scratch/ab8690/ml/data/dev.csv"
 
-train = pd.read_csv(train_path, index_col=0)
-val = pd.read_csv(val_path, index_col=0)
-
 train = train[~train.labels.str.contains(":")]
 val = val[~val.labels.str.contains(":")]
 
@@ -79,15 +76,11 @@ X_val[np.isnan(X_val)]=0
 
 y_val = np.array(val_encoded_labels_df).astype(float)
 
-
 # Define model
-svm = SVC(kernel='linear',
-                 probability=True,
-                 verbose=True,
-                 max_iter=1,
-                 decision_function_shape='ovr',
-                 random_state=0)
-model = OneVsRestClassifier(svm)
+linsvm = LinearSVC(loss='hinge',
+                       multi_class='ovr',
+                       verbose=True)
+model = OneVsRestClassifier(linsvm)
 
 start = time.process_time()
 model.fit(X,y)
@@ -106,4 +99,3 @@ y_true = y_val
 LRAP = label_ranking_average_precision_score(y_true,y_pred)
 
 print("LRAP:", LRAP)
-

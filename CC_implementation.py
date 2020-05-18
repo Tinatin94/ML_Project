@@ -56,7 +56,7 @@ features_df_val = pd.DataFrame(col_dicts_val)
 
 features_df = features_df.fillna(0)
 features_df_val = features_df_val.fillna(0)
-
+print('done cleanning')
 X_train = np.array(features_df)
 Y_train = np.array(encoded_labels_df)
 x_val = np.array(features_df_val)
@@ -67,15 +67,17 @@ base_lr = LogisticRegression()
 chains = [ClassifierChain(base_lr, order='random', random_state=i)
           for i in range(5)]
 
-
+i = 1
 for chain in chains:
+    print(i)
     chain.fit(X_train, Y_train)
     filename = i+".pickle"
     pickle.dump(chain, open(filename, 'wb'))
+    i += 1
 
 
 
 #loaded_model = pickle.load(open(filename, 'rb'))
-    
+print('start predict')  
 Y_pred_chains = np.array([chain.predict_proba(x_val) for chain in
                           chains])

@@ -80,7 +80,7 @@ chain = ClassifierChain(base_lr, order='random', random_state=int_rand)
 
 chain.fit(X_train, Y_train)
 
-filename = f"{MAX_ITER}_{int_rand}.pickle"
+filename = f"{MAX_ITER}_{int_rand}.sav"
 file_path = save_path + filename
 
 end = datetime.datetime.now()

@@ -5,8 +5,12 @@ import pandas as pd
 from sklearn.metrics import label_ranking_average_precision_score
 from sklearn.neural_network import MLPClassifier
 
-train = pd.read_csv("train.csv", index_col=0)
-val = pd.read_csv("dev.csv", index_col=0)
+train_path = "/scratch/ab8690/ml/data/train.csv"
+val_path = "/scratch/ab8690/ml/data/dev.csv"
+
+
+train = pd.read_csv(train_path, index_col=0)
+val = pd.read_csv(val_path, index_col=0)
 
 
 val = val[~val.labels.str.contains(":")]
